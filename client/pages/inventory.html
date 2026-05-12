@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory - GB Bakeshop</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <header>
+        <div class="hamburger" id="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="logo">GB Bakeshop</div>
+    </header>
+    <aside class="sidebar">
+        <ul>
+            <li><a href="dashboard.html">Dashboard</a></li>
+            <li><a href="products.html">Products</a></li>
+            <li><a href="inventory.html" class="active">Inventory</a></li>
+            <li><a href="orders.html">Orders</a></li>
+        </ul>
+    </aside>
+    <main>
+        <div class="container">
+            <h2>Inventory Monitoring</h2>
+            <section>
+            <table id="inventoryTable">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Stock</th>
+                        <th>Last Transaction</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            </section>
+        </div>
+    </main>
+    <script src="../assets/js/utils.js"></script>
+    <script src="../assets/js/main.js"></script>
+    <script>
+        // auto-refresh inventory every 20 seconds
+        setInterval(() => {
+            loadInventory().catch(err => console.error('Error refreshing inventory:', err));
+        }, 20000);
+    </script>
+</body>
+</html>

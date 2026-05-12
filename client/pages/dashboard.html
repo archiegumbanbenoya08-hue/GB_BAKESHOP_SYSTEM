@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - GB Bakeshop</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <header>
+        <div class="hamburger" id="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="logo">GB Bakeshop</div>
+        
+    </header>
+    <aside class="sidebar">
+        <ul>
+            <li><a href="dashboard.html" class="active">Dashboard</a></li>
+            <li><a href="products.html">Products</a></li>
+            <li><a href="inventory.html">Inventory</a></li>
+            <li><a href="orders.html">Orders</a></li>
+        </ul>
+    </aside>
+    <main>
+        <div class="container">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                <h2>Dashboard</h2>
+                <button id="refreshBtn" class="btn" style="padding: 10px 20px; font-size: 0.9em;">🔄 Refresh</button>
+            </div>
+            <section class="card-container">
+                <div class="card">
+                    <h3>Total Products</h3>
+                    <div class="value" id="totalProducts">-</div>
+                    <div class="change" id="productsChange">Loading...</div>
+                </div>
+                <div class="card">
+                    <h3>Low Stock Alert</h3>
+                    <div class="value" id="lowStockCount">-</div>
+                    <div class="change" id="lowStockText">Items below 10 units</div>
+                </div>
+                <div class="card">
+                    <h3>Orders Today</h3>
+                    <div class="value" id="ordersToday">-</div>
+                    <div class="change" id="ordersChange">Loading...</div>
+                </div>
+                <div class="card">
+                    <h3>Total Revenue</h3>
+                    <div class="value" id="totalRevenue">-</div>
+                    <div class="change" id="revenueChange">This month</div>
+                </div>
+            </section>
+        </div>
+    </main>
+    <script src="../assets/js/main.js"></script>
+    <script>
+        // dashboard-specific initialization
+        window.addEventListener('DOMContentLoaded', () => {
+            loadDashboardMetrics();
+            // refresh metrics every 30 seconds
+            setInterval(loadDashboardMetrics, 30000);
+            
+            // setup manual refresh button
+            const refreshBtn = document.getElementById('refreshBtn');
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', () => {
+                    refreshBtn.style.opacity = '0.6';
+                    refreshBtn.style.transform = 'rotate(180deg)';
+                    loadDashboardMetrics().then(() => {
+                        refreshBtn.style.opacity = '1';
+                        refreshBtn.style.transform = 'rotate(0deg)';
+                    });
+                });
+            }
+        });
+        
+        async function loadDashboardMetrics() {
+            try {
+                // fetch all data in parallel
+                const [products, orders] = await Promise.all([
+                    fetch('/api/products').then(r => r.json()),
+                    fetch('/api/orders').then(r => r.json())
+                ]);
+                
+                // calculate metrics
+                const totalProducts = products.length;
+                const lowStockProducts = products.filter(p => p.stock_quantity < 10).length;
+                const today = new Date().toDateString();
+                const ordersToday = orders.filter(o => new Date(o.order_date).toDateString() === today).length;
+                const totalRevenue = orders
+                    .filter(o => new Date(o.order_date).toDateString() === today)
+                    .reduce((sum, o) => sum + (parseFloat(o.total_amount) || 0), 0);
+                
+                // update DOM
+                document.getElementById('totalProducts').textContent = totalProducts;
+                document.getElementById('productsChange').textContent = `${totalProducts} in inventory`;
+                
+                document.getElementById('lowStockCount').textContent = lowStockProducts;
+                document.getElementById('lowStockText').textContent = lowStockProducts > 0 ? 'Items need restocking' : 'All items stocked well';
+                
+                document.getElementById('ordersToday').textContent = ordersToday;
+                document.getElementById('ordersChange').textContent = ordersToday > 0 ? `Generated ₱${totalRevenue.toFixed(2)} today` : 'No orders yet';
+                
+                document.getElementById('totalRevenue').textContent = `₱${totalRevenue.toFixed(2)}`;
+                
+            } catch (err) {
+                console.error('Error loading dashboard metrics:', err);
+                document.getElementById('totalProducts').textContent = 'Error';
+            }
+        }
+    </script>
+</body>
+</html>

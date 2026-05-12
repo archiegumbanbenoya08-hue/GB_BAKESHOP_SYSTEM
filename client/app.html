@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GB Bakeshop - Management System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        /* Tab navigation */
+        .tabs {
+            display: flex;
+            gap: 0;
+            background: linear-gradient(135deg, #E8995B 0%, #D88A4F 100%);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 60px;
+            z-index: 500;
+            border-bottom: 3px solid var(--primary);
+        }
+
+        .tabs button {
+            flex: 1;
+            padding: 16px 20px;
+            border: none;
+            background: none;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: var(--font-sans);
+            font-size: 0.95em;
+            border-bottom: 3px solid transparent;
+            position: relative;
+        }
+
+        .tabs button:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .tabs button.active {
+            background: rgba(255,255,255,0.2);
+            border-bottom: 3px solid white;
+        }
+
+        /* Section containers */
+        .tab-content {
+            display: none !important;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block !important;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Adjust main for tabs */
+        main {
+            margin-top: 0 !important;
+            margin-left: 0 !important;
+            padding: 0 !important;
+        }
+
+        .app-layout {
+            display: flex;
+            min-height: calc(100vh - 60px);
+        }
+
+        .app-sidebar {
+            width: 220px;
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            position: fixed;
+            top: 60px;
+            bottom: 0;
+            padding-top: 10px;
+            overflow-y: auto;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.2);
+            border-right: 2px solid #0ea5e9;
+        }
+
+        .app-sidebar ul {
+            list-style: none;
+            padding: 10px 0;
+            margin: 0;
+        }
+
+        .app-sidebar ul li {
+            margin: 0;
+        }
+
+        .app-sidebar ul li a {
+            display: block;
+            padding: 14px 20px;
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 4px solid transparent;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .app-sidebar ul li a:hover {
+            background-color: rgba(139, 69, 19, 0.2);
+            border-left: 4px solid white;
+            transform: translateX(4px);
+        }
+
+        .app-sidebar ul li a.active {
+            background: linear-gradient(90deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.15) 100%);
+            color: white;
+            border-left: 4px solid white;
+            font-weight: 600;
+            box-shadow: inset 2px 0 0 white;
+        }
+
+        .app-content {
+            flex: 1;
+            margin-left: 220px;
+            padding: 30px 20px;
+            background-color: #f5f5f5;
+            min-height: calc(100vh - 60px);
+        }
+
+        .tabs-horizontal {
+            display: flex;
+            gap: 10px;
+            background: none;
+            box-shadow: none;
+            border-bottom: none;
+            position: static;
+            top: auto;
+            padding: 20px 0;
+            margin-bottom: 20px;
+        }
+
+        .tabs-horizontal button {
+            padding: 12px 24px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            color: var(--text-dark);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tabs-horizontal button:hover {
+            border-color: var(--secondary);
+            background: #fafafa;
+        }
+
+        .tabs-horizontal button.active {
+            background: linear-gradient(135deg, var(--secondary) 0%, #D88A4F 100%);
+            color: white;
+            border-color: var(--secondary);
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .app-sidebar {
+                display: none;
+                position: fixed;
+                left: 0;
+                width: 220px;
+                height: 100vh;
+                top: 60px;
+                z-index: 999;
+            }
+
+            .app-sidebar.show {
+                display: block;
+                box-shadow: 4px 0 15px rgba(0,0,0,0.2);
+            }
+
+            .app-content {
+                margin-left: 0;
+                padding: 20px 15px;
+            }
+
+            .tabs-horizontal {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+            }
+
+            .tabs-horizontal button {
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="hamburger" id="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="logo">GB Bakeshop</div>
+        <div class="profile">👤 Admin User</div>
+    </header>
+
+    <div class="app-layout">
+        <aside class="app-sidebar">
+            <ul>
+                <li><a href="#dashboard" class="nav-link active" data-section="dashboard">📊 Dashboard</a></li>
+                <li><a href="#products" class="nav-link" data-section="products">🍰 Products</a></li>
+                <li><a href="#inventory" class="nav-link" data-section="inventory">📦 Inventory</a></li>
+                <li><a href="#orders" class="nav-link" data-section="orders">📋 Orders</a></li>
+            </ul>
+        </aside>
+
+        <main class="app-content">
+            <!-- DASHBOARD SECTION -->
+            <div class="tab-content active" id="dashboard-section">
+                <div class="container">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                        <h2>Dashboard</h2>
+                        <button id="refreshDashBtn" class="btn" style="padding: 10px 20px; font-size: 0.9em;">🔄 Refresh</button>
+                    </div>
+                    <section class="card-container">
+                        <div class="card">
+                            <h3>Total Products</h3>
+                            <div class="value" id="totalProducts">-</div>
+                            <div class="change" id="productsChange">Loading...</div>
+                        </div>
+                        <div class="card">
+                            <h3>Low Stock Alert</h3>
+                            <div class="value" id="lowStockCount">-</div>
+                            <div class="change" id="lowStockText">Items below 10 units</div>
+                        </div>
+                        <div class="card">
+                            <h3>Orders Today</h3>
+                            <div class="value" id="ordersToday">-</div>
+                            <div class="change" id="ordersChange">Loading...</div>
+                        </div>
+                        <div class="card">
+                            <h3>Total Revenue</h3>
+                            <div class="value" id="totalRevenue">-</div>
+                            <div class="change" id="revenueChange">This month</div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <!-- PRODUCTS SECTION -->
+            <div class="tab-content" id="products-section">
+                <div class="container">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h2>Products</h2>
+                        <button id="addProductBtn" class="btn" style="padding: 10px 20px; font-size: 0.9em;">➕ Add Product</button>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="productSearch" placeholder="🔍 Search products..." />
+                    </div>
+                    <section>
+                        <table id="productsTable">
+                            <thead>
+                                <tr>
+                                    <th>Product Name</th>
+                                    <th>Category</th>
+                                    <th>Price</th>
+                                    <th>Stock</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </section>
+                </div>
+            </div>
+
+            <!-- INVENTORY SECTION -->
+            <div class="tab-content" id="inventory-section">
+                <div class="container">
+                    <h2>Inventory Monitoring</h2>
+                    <section>
+                        <table id="inventoryTable">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Stock</th>
+                                    <th>Last Transaction</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </section>
+                </div>
+            </div>
+
+            <!-- ORDERS SECTION -->
+            <div class="tab-content" id="orders-section">
+                <div class="container">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h2>Order Management</h2>
+                        <button id="addOrderBtn" class="btn" style="padding: 10px 20px; font-size: 0.9em;">➕ New Order</button>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="orderSearch" placeholder="🔍 Search orders..." />
+                    </div>
+                    <section>
+                        <table id="ordersTable">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Staff</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </section>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Product Modal -->
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add Product</h3>
+                <button id="modalClose" style="background: none; border: none; font-size: 1.5em; cursor: pointer; color: #333;">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="productForm">
+                    <div class="form-group">
+                        <label>Product Name</label>
+                        <input type="text" id="pName" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <input type="text" id="pCategory" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Price</label>
+                        <input type="number" id="pPrice" step="0.01" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Stock Quantity</label>
+                        <input type="number" id="pStock" required />
+                    </div>
+                    <button type="submit" class="btn" style="width: 100%; margin-top: 20px;">Save Product</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Modal -->
+    <div class="modal" id="orderModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create New Order</h3>
+                <button id="orderModalClose" style="background: none; border: none; font-size: 1.5em; cursor: pointer; color: #333;">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="orderForm">
+                    <div class="form-group">
+                        <label>Staff Member</label>
+                        <select id="staffSelect" required>
+                            <option value="">-- Select Staff --</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Products (Click to add items)</label>
+                        <div id="productList" style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; border-radius: 8px; padding: 10px;">
+                            <p style="color: #999;">Loading products...</p>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>📋 Order Items</label>
+                        <div id="orderItems" style="border: 1px solid #ddd; border-radius: 8px; padding: 10px; min-height: 60px; background: #f9f9f9;">
+                            <p style="color: #999; margin: 0;">No items added yet</p>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Total Amount: <strong id="orderTotal">₱0.00</strong></label>
+                    </div>
+
+                    <button type="submit" class="btn" style="width: 100%; margin-top: 20px;">Create Order</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/main.js"></script>
+    <script>
+        // Single-page app navigation
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const section = link.dataset.section;
+                showSection(section);
+                
+                // update active state
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+                
+                // close sidebar on mobile
+                const sidebar = document.querySelector('.app-sidebar');
+                if (sidebar) {
+                    sidebar.classList.remove('show');
+                }
+            });
+        });
+
+        function showSection(sectionName) {
+            // hide all sections
+            document.querySelectorAll('.tab-content').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // show selected section
+            const selectedSection = document.getElementById(`${sectionName}-section`);
+            if (selectedSection) {
+                selectedSection.classList.add('active');
+                
+                // load data for section
+                if (sectionName === 'dashboard') {
+                    loadDashboardMetrics();
+                } else if (sectionName === 'products') {
+                    if (!document.querySelector('#productsTable tbody').hasChildNodes()) {
+                        loadProducts();
+                        setupProductModal();
+                        setupSearch();
+                    }
+                } else if (sectionName === 'inventory') {
+                    if (!document.querySelector('#inventoryTable tbody').hasChildNodes()) {
+                        loadInventory();
+                    }
+                } else if (sectionName === 'orders') {
+                    if (!document.querySelector('#ordersTable tbody').hasChildNodes()) {
+                        loadOrders();
+                        setupOrderSearch();
+                        setupOrderModal();
+                    }
+                }
+            }
+        }
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            setActiveNav();
+            initHamburger();
+            
+            // load initial dashboard data
+            loadDashboardMetrics();
+            
+            // refresh dashboard every 30 seconds
+            setInterval(loadDashboardMetrics, 30000);
+            
+            // setup refresh button
+            const refreshBtn = document.getElementById('refreshDashBtn');
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', () => {
+                    refreshBtn.style.opacity = '0.6';
+                    refreshBtn.style.transform = 'rotate(180deg)';
+                    loadDashboardMetrics().then(() => {
+                        refreshBtn.style.opacity = '1';
+                        refreshBtn.style.transform = 'rotate(0deg)';
+                    });
+                });
+            }
+        });
+
+        async function loadDashboardMetrics() {
+            try {
+                const [products, orders] = await Promise.all([
+                    fetch('/api/products').then(r => r.json()),
+                    fetch('/api/orders').then(r => r.json())
+                ]);
+                
+                const totalProducts = products.length;
+                const lowStockProducts = products.filter(p => p.stock_quantity < 10).length;
+                const today = new Date().toDateString();
+                const ordersToday = orders.filter(o => new Date(o.order_date).toDateString() === today).length;
+                const totalRevenue = orders
+                    .filter(o => new Date(o.order_date).toDateString() === today)
+                    .reduce((sum, o) => sum + (parseFloat(o.total_amount) || 0), 0);
+                
+                document.getElementById('totalProducts').textContent = totalProducts;
+                document.getElementById('productsChange').textContent = `${totalProducts} in inventory`;
+                document.getElementById('lowStockCount').textContent = lowStockProducts;
+                document.getElementById('lowStockText').textContent = lowStockProducts > 0 ? 'Items need restocking' : 'All items stocked well';
+                document.getElementById('ordersToday').textContent = ordersToday;
+                document.getElementById('ordersChange').textContent = ordersToday > 0 ? `Generated ₱${totalRevenue.toFixed(2)} today` : 'No orders yet';
+                document.getElementById('totalRevenue').textContent = `₱${totalRevenue.toFixed(2)}`;
+                
+            } catch (err) {
+                console.error('Error loading dashboard metrics:', err);
+            }
+        }
+    </script>
+</body>
+</html>

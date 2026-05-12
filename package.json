@@ -1,0 +1,16 @@
+{
+  "name": "gb_bakeshop_system",
+  "version": "1.0.0",
+  "description": "Bakery management system with MVC architecture",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "mysql2": "^2.3.3"
+  }
+}
